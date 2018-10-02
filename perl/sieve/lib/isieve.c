@@ -618,7 +618,10 @@ static int do_referral(isieve_t *obj, char *refer_to)
 
     /* Start up SASL */
     ret = init_sasl(obj_new, 128, callbacks);
-    if(ret) return STAT_NO;
+    if(ret) {
+      free (obj_new);
+      return STAT_NO;
+    }
 
     /* Authenticate */
     mechlist = read_capability(obj_new);
@@ -654,8 +657,12 @@ static int do_referral(isieve_t *obj, char *refer_to)
         }
     } while(ret && mtried);
 
-    /* xxx leak? */
-    if(ret) return STAT_NO;
+    if(ret) {
+        free(mechlist);
+        free(obj_new);
+        free(refer_to);
+        return STAT_NO;
+    }
 
     if (ssf) {
         /* SASL security layer negotiated --

@@ -555,10 +555,12 @@ static int myopen(const char *fname, int flags, struct dbengine **ret, struct tx
             if (dbengine->sql_exec(conn, cmd, NULL, NULL)) {
                 syslog(LOG_ERR, "DBERROR: SQL failed: %s", cmd);
                 dbengine->sql_close(conn);
+                free(table);
                 return CYRUSDB_INTERNAL;
             }
         }
         else {
+            free(table);
             return CYRUSDB_NOTFOUND;
         }
     }
